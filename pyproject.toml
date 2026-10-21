@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "release-preflight"
+version = "0.1.0"
+description = "Offline release checks with bilingual, shareable reports for open-source maintainers"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{name = "cyhandzxy"}]
+keywords = ["release", "open-source", "maintainer", "preflight", "cli"]
+classifiers = ["Development Status :: 3 - Alpha", "Environment :: Console", "Operating System :: OS Independent", "Programming Language :: Python :: 3", "Topic :: Software Development :: Quality Assurance"]
+
+[project.scripts]
+release-preflight = "release_preflight.cli:main"
+
+[project.urls]
+Repository = "https://github.com/cyhandzxy/release-preflight"
+Issues = "https://github.com/cyhandzxy/release-preflight/issues"
+
+[tool.setuptools.packages.find]
+include = ["release_preflight*"]
