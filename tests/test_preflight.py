@@ -166,6 +166,41 @@ class ProjectCase(FixtureCase):
     def test_missing_asset_fails(self):
         self.assertTrue(self.has(self.run_scan(assets=(Path("absent.zip"),)), "asset-sha256", "fail"))
 
+    def project_alias(self):
+        alias = self.base / "project-alias"
+        try:
+            alias.symlink_to(self.root, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            self.skipTest("directory symlink creation unavailable on this host")
+        return alias
+
+    def test_absolute_asset_under_selected_root_alias(self):
+        self.write("artifact.bin", "abc")
+        alias = self.project_alias()
+        result = scan(alias, skip_git=True, assets=(alias / "artifact.bin",))
+        self.assertTrue(self.has(result, "asset-sha256", "pass"))
+        self.assertEqual(result.assets[0]["sha256"], "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")
+
+    def test_cli_absolute_asset_under_selected_root_alias(self):
+        self.write("artifact.bin", "abc")
+        alias = self.project_alias()
+        output = self.base / "alias-report.json"
+        code = main([str(alias), "--skip-git", "--asset", str(alias / "artifact.bin"),
+                     "--format", "json", "--output", str(output)])
+        self.assertEqual(code, 0)
+        self.assertEqual(len(json.loads(output.read_text(encoding="utf-8"))["assets"]), 1)
+
+    def test_symlink_asset_inside_project_is_still_rejected(self):
+        target = self.write("artifact.bin", "abc")
+        link = self.root / "linked-artifact.bin"
+        try:
+            link.symlink_to(target)
+        except (OSError, NotImplementedError):
+            self.skipTest("symlink creation unavailable on this host")
+        result = self.run_scan(assets=(link,))
+        self.assertTrue(self.has(result, "asset-sha256", "fail"))
+        self.assertEqual(result.assets, [])
+
     def test_scan_does_not_change_source_bytes(self):
         def snapshot():
             return {p.relative_to(self.root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()

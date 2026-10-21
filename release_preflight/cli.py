@@ -33,7 +33,7 @@ def main(argv: list[str] | None = None) -> int:
                 raise ValueError("output already exists; choose a new filename")
             if not output.parent.is_dir():
                 raise ValueError("output parent directory does not exist")
-        report = scan(root, release=args.release, skip_git=args.skip_git,
+        report = scan(args.path, release=args.release, skip_git=args.skip_git,
                       assets=tuple(args.asset), excludes=tuple(args.exclude))
         if args.format == "json":
             content = json.dumps(report.to_dict(args.strict), ensure_ascii=False, indent=2) + "\n"

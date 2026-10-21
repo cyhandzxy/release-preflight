@@ -130,6 +130,7 @@ def _git(root: Path, args: list[str]) -> subprocess.CompletedProcess:
 
 def scan(root: Path, *, release: str | None = None, skip_git: bool = False,
          assets: tuple[Path, ...] = (), excludes: tuple[str, ...] = ()) -> Report:
+    selected_root = root.absolute()
     root = root.resolve(strict=True)
     if not root.is_dir():
         raise ValueError("project path must be a directory")
@@ -319,6 +320,11 @@ def scan(root: Path, *, release: str | None = None, skip_git: bool = False,
 
     for asset in assets:
         path = asset if asset.is_absolute() else root / asset
+        # The selected root is already canonicalized for document/Git checks.
+        # Apply the same root mapping to absolute assets (e.g. macOS /var ->
+        # /private/var), while preserving and rejecting links BELOW that root.
+        if asset.is_absolute() and asset.is_relative_to(selected_root):
+            path = root / asset.relative_to(selected_root)
         try:
             # Explicit asset paths may be outside the project; never recurse into folders.
             if any(_linked(p) for p in (path, *path.parents)) or not path.is_file():

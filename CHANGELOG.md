@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+- Treat absolute assets beneath an explicitly selected root alias consistently
+  with relative assets, including macOS temporary-directory aliases.
+- Preserve rejection of linked artifact files inside the project.
+- Add scanner and CLI regression coverage for aliased roots.
+
 ## [0.1.0] - 2026-10-21
 
 Initial alpha implementation.

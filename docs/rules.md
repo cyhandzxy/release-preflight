@@ -53,7 +53,11 @@ submodule cleanliness guarantees are outside scope.
 
 `--asset FILE` reads a regular file in chunks and records SHA-256 and byte size.
 Relative paths are resolved from the project root. Explicit absolute files
-outside the project are allowed. Size/mtime/inode changes detected during the
+outside the project are allowed. The explicitly selected project root is
+canonicalized first, including system aliases such as macOS `/var`. Absolute
+assets under that same selected root use the same mapping. Linked files or
+directories below the project root remain rejected; outside assets must not
+have linked ancestors. Size/mtime/inode changes detected during the
 read cause failure. Signatures and trusted prior hashes are not verified.
 
 ## Reports
